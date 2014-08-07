@@ -20,6 +20,10 @@ var TelemetryDbModel = telemetryDb.telemetryModelClass();
 app.use(bodyParser());
 app.use(cors());
 
+app.get('/', function(req, res) {
+    res.send('Welcome to the Project Latex database server. To get latest data, go to /latest. To get altitude data, go to /altitude');
+});
+
 app.get('/latest', function(req, res) {
     TelemetryDbModel
         .find()

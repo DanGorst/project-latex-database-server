@@ -1,0 +1,24 @@
+{
+  "name": "database-server",
+  "version": "0.0.0",
+  "description": "",
+  "main": "database-server.js",
+  "dependencies": {
+    "cors": "^2.4.1",
+    "body-parser": "^1.5.2",
+    "mongoose": "3.8.x",
+    "express": "^4.7.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+      "start": "node database-server.js",
+      "test": "jasmine-node spec/"
+  },
+  "keywords": [
+    "mongoDB",
+    "database",
+    "http"
+  ],
+  "author": "Dan Gorst",
+  "license": "ISC"
+}

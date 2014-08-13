@@ -2,62 +2,56 @@
 
 var express = require('express');
 var bodyParser = require('body-parser');
-var mongoose = require('mongoose');
 var telemetryDb = require('./telemetryDb');
+var queryHelper = require('./queryHelper.js');
 var cors = require('cors');
 
 var app = express();
-
-var db = mongoose.connection;
-mongoose.connect(telemetryDb.url);
-
-db.on('error', console.error);
-db.once('open', function() {
-});
-
-var TelemetryDbModel = telemetryDb.telemetryModelClass();
 
 app.use(bodyParser());
 app.use(cors());
 
 app.get('/', function(req, res) {
-    res.send('Welcome to the Project Latex database server. To get latest data, go to /latest. To get altitude data, go to /altitude');
+    res.send('Welcome to the Project Latex database server. To get latest data, go to /latest. To get historical data, go to /historical/<data type>');
 });
 
 app.get('/latest', function(req, res) {
-    TelemetryDbModel
-        .find()
-        .sort('-time')
-        .limit(1)
-        .exec(function(err, data) {
+    var callback = function(err, data) {
             if (err) {
                 res.send(err);
+            } else {
+                res.send(queryHelper.getLatestDataToReturn(data));
             }
-            res.send(telemetryDb.getLatestDataToReturn(data));
-        });
+        };
+    telemetryDb.getLatestData(callback);
 });
 
-app.get('/altitude', function(req, res) {
-    TelemetryDbModel
-        .find()
-        .sort('time')
-        .select('time altitude')
-        .exec(function(err, data) {
-            if (err) {
-                res.send(err);
-            }
-            res.send(data);
-        });
+app.get('/historical/:dataTypeId', function(req, res) {
+    var dataTypeId = req.param('dataTypeId');
+    var validDataType = queryHelper.dataTypeIsValid(dataTypeId);
+    if (validDataType) {
+        var callback = function(err, data) {
+                if (err) {
+                    res.send(err);
+                }
+                res.send(data);
+            };
+        telemetryDb.getHistoricalData(dataTypeId, callback);
+    } else {
+        res.status(400);
+        var validKeys = queryHelper.validKeys();
+        res.send('Invalid data type requested. Valid data types are: ' + validKeys);
+    }
 });
 
 function saveTelemetryInfo(req, res) {
-    var dbTelemetryInfo = new TelemetryDbModel(req.body);
-    dbTelemetryInfo.save(function(err, dbTelemetryInfo) {
+    var callback = function(err, dbTelemetryInfo) {
       if (err) {
           res.send(err);
       }
       res.send(dbTelemetryInfo);
-    });
+    };
+    telemetryDb.saveTelemetryInfo(req.body, callback);
 }
 
 app.put('/upload', function(req, res) {
@@ -73,4 +67,5 @@ app.post('/upload', function(req, res) {
 var port = Number(process.env.PORT || 4000);
 var server = app.listen(port, function() {
     console.log('Listening on port %d', server.address().port);
+    telemetryDb.initialiseDb();
 });

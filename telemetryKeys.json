@@ -1,0 +1,3 @@
+{
+    "keys": ["payload_name", "sentence_id", "time", "latitude", "longitude", "altitude", "speed", "heading", "temp_internal", "temp_external"]
+}

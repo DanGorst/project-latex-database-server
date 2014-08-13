@@ -2,10 +2,7 @@
 
 var mongoose = require('mongoose');
 
-module.exports = {
-    url: 'mongodb://user:latex1@ds053109.mongolab.com:53109/project-latex',
-    telemetrySchema: function() {
-        return new mongoose.Schema({
+var schema = new mongoose.Schema({
             payload_name: String, 
             sentence_id: String, 
             time: Date,
@@ -17,16 +14,43 @@ module.exports = {
             temp_internal: Number,
             temp_external: Number
         });
-    },
-    telemetryModelClass: function() {
-        return mongoose.model('TelemetryInfo', this.telemetrySchema());
-    },
-    getLatestDataToReturn: function(data)    {
-        if (data.length === 0)  {
-            return {};
-        }
-        else {
-            return data[0];
-        }
-    }
+
+function initialiseDb() {
+    var db = mongoose.connection;
+    mongoose.connect('mongodb://user:latex1@ds053109.mongolab.com:53109/project-latex');
+
+    db.on('error', console.error);
+    db.once('open', function() {
+        console.log('Database connection opened');
+    });
+}
+
+var TelemetryDbModel = mongoose.model('TelemetryInfo', schema);
+
+function getLatestData(callback) {
+    TelemetryDbModel
+        .find()
+        .sort('-time')
+        .limit(1)
+        .exec(callback);
+}
+
+function getHistoricalData(dataTypeId, callback) {
+    TelemetryDbModel
+            .find()
+            .sort('time')
+            .select('time ' + dataTypeId)
+            .exec(callback);
+}
+
+function saveTelemetryInfo(data, callback) {
+    var dbTelemetryInfo = new TelemetryDbModel(data);
+    dbTelemetryInfo.save(callback);
+}
+
+module.exports = {
+    initialiseDb: initialiseDb,
+    getLatestData: getLatestData,
+    getHistoricalData: getHistoricalData,
+    saveTelemetryInfo: saveTelemetryInfo
 };

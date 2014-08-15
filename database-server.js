@@ -12,7 +12,7 @@ app.use(bodyParser());
 app.use(cors());
 
 app.get('/', function(req, res) {
-    res.send('Welcome to the Project Latex database server. To get latest data, go to /latest. To get historical data, go to /historical/<data type>');
+    res.send('Welcome to the Project Latex database server. To get latest data, go to /latest. To get historical data, go to /historical?dataTypes_here');
 });
 
 app.get('/latest', function(req, res) {
@@ -26,17 +26,26 @@ app.get('/latest', function(req, res) {
     telemetryDb.getLatestData(callback);
 });
 
-app.get('/historical/:dataTypeId', function(req, res) {
-    var dataTypeId = req.param('dataTypeId');
-    var validDataType = queryHelper.dataTypeIsValid(dataTypeId);
-    if (validDataType) {
+app.get('/historical', function(req, res) {
+    var query = req.query;
+    var dataTypes = [];
+    for (var property in query) {
+        if (query.hasOwnProperty(property)) {
+            dataTypes[dataTypes.length] = property;
+        }
+    }
+    var validDataTypes = true;
+    for (var i = 0; i < dataTypes.length; ++i) {
+        validDataTypes = queryHelper.dataTypeIsValid(dataTypes[i]);
+    }
+    if (validDataTypes) {
         var callback = function(err, data) {
                 if (err) {
                     res.send(err);
                 }
                 res.send(data);
             };
-        telemetryDb.getHistoricalData(dataTypeId, callback);
+        telemetryDb.getHistoricalData(queryHelper.queryStringFromDataTypes(dataTypes), callback);
     } else {
         res.status(400);
         var validKeys = queryHelper.validKeys();

@@ -35,11 +35,11 @@ function getLatestData(callback) {
         .exec(callback);
 }
 
-function getHistoricalData(dataTypeId, callback) {
+function getHistoricalData(dataTypesString, callback) {
     TelemetryDbModel
             .find()
             .sort('time')
-            .select('time ' + dataTypeId)
+            .select('time ' + dataTypesString)
             .exec(callback);
 }
 

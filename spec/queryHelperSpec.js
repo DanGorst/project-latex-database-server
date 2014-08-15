@@ -37,3 +37,22 @@ describe('Test whether data type is valid', function() {
         expect(queryHelper.dataTypeIsValid('time')).toEqual(true);
     });
 });
+
+describe('Convert array of data types to valid query string', function() {
+    it('should convert valid array to a valid query string', function() {
+        expect(queryHelper.queryStringFromDataTypes(['val1', 'val2'])).toEqual('val1 val2');
+    });
+    
+    it('should throw if given empty array', function() {
+        expect(function() { queryHelper.queryStringFromDataTypes([]); } ).toThrow(queryHelper.invalidArrayMessage + ': []');
+    });
+    
+    it('should throw if given null array', function() {
+        expect(function() { queryHelper.queryStringFromDataTypes(null); } ).toThrow(queryHelper.invalidArrayMessage + ': null');
+    });
+    
+    it('should throw if given undefined array', function() {
+        var undefinedVar;
+        expect(function() { queryHelper.queryStringFromDataTypes(undefinedVar); } ).toThrow(queryHelper.invalidArrayMessage + ': undefined');
+    });
+});

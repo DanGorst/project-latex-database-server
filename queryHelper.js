@@ -2,6 +2,8 @@
 
 var telemetryKeys = require('./telemetryKeys.json');
 
+var invalidArrayMessage = 'Invalid array of data types';
+
 function getLatestDataToReturn(data) {
     if (data.length === 0)  {
         return {};
@@ -21,6 +23,22 @@ function dataTypeIsValid(dataTypeId) {
     return false;
 }
 
+function queryStringFromDataTypes(dataTypes) {
+    if (typeof dataTypes === 'undefined' || dataTypes === null) {
+        throw invalidArrayMessage + ': ' + dataTypes;
+    }
+    if (dataTypes.length == 0) {
+        throw invalidArrayMessage + ': []';
+    }
+    
+    var dataTypesString = '';
+    for (var i = 0; i < dataTypes.length - 1; ++i) {
+        dataTypesString += dataTypes[i] + ' ';
+    }
+    dataTypesString += dataTypes[dataTypes.length - 1];
+    return dataTypesString;
+}
+
 function validKeys() {
     return telemetryKeys.keys;
 }
@@ -28,5 +46,7 @@ function validKeys() {
 module.exports = {
     getLatestDataToReturn: getLatestDataToReturn,
     dataTypeIsValid: dataTypeIsValid,
-    validKeys: validKeys
+    validKeys: validKeys,
+    queryStringFromDataTypes: queryStringFromDataTypes,
+    invalidArrayMessage: invalidArrayMessage
 };

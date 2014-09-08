@@ -18,6 +18,7 @@ app.get('/', function(req, res) {
 app.get('/latest', function(req, res) {
     var callback = function(err, data) {
             if (err) {
+                res.status(400);
                 res.send(err);
             } else {
                 res.send(queryHelper.getLatestDataToReturn(data));
@@ -41,9 +42,11 @@ app.get('/historical', function(req, res) {
     if (validDataTypes) {
         var callback = function(err, data) {
                 if (err) {
+                    res.status(400);
                     res.send(err);
+                } else {
+                    res.send(data);
                 }
-                res.send(data);
             };
         telemetryDb.getHistoricalData(queryHelper.queryStringFromDataTypes(dataTypes), callback);
     } else {
@@ -56,9 +59,11 @@ app.get('/historical', function(req, res) {
 function saveTelemetryInfo(req, res) {
     var callback = function(err, dbTelemetryInfo) {
       if (err) {
+          res.status(400);
           res.send(err);
+      } else {
+          res.send(dbTelemetryInfo);
       }
-      res.send(dbTelemetryInfo);
     };
     telemetryDb.saveTelemetryInfo(req.body, callback);
 }

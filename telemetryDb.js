@@ -43,7 +43,20 @@ function getHistoricalData(dataTypesString, callback) {
             .exec(callback);
 }
 
+function putUnavailableDataIntoCorrectFormat(data) {
+    for (var property in data) {
+        if (data.hasOwnProperty(property)) {
+            var value = data[property];
+            if (value === 'N/A' && property != 'payload_name' && property != 'sentence_id' && property != 'time') {
+                data[property] = '99.99';
+            }
+        }
+    }
+    return data;
+}
+
 function saveTelemetryInfo(data, callback) {
+    putUnavailableDataIntoCorrectFormat(data);
     var dbTelemetryInfo = new TelemetryDbModel(data);
     dbTelemetryInfo.save(callback);
 }
@@ -52,5 +65,6 @@ module.exports = {
     initialiseDb: initialiseDb,
     getLatestData: getLatestData,
     getHistoricalData: getHistoricalData,
-    saveTelemetryInfo: saveTelemetryInfo
+    saveTelemetryInfo: saveTelemetryInfo,
+    putUnavailableDataIntoCorrectFormat: putUnavailableDataIntoCorrectFormat
 };

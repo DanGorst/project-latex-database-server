@@ -35,6 +35,12 @@ function getLatestData(callback) {
         .exec(callback);
 }
 
+function getData(id, callback) {
+    TelemetryDbModel
+            .findOne({ 'sentence_id' : id })
+            .exec(callback);
+}
+
 function getHistoricalData(dataTypesString, callback) {
     TelemetryDbModel
             .find()
@@ -64,6 +70,7 @@ function saveTelemetryInfo(data, callback) {
 module.exports = {
     initialiseDb: initialiseDb,
     getLatestData: getLatestData,
+    getData: getData,
     getHistoricalData: getHistoricalData,
     saveTelemetryInfo: saveTelemetryInfo,
     putUnavailableDataIntoCorrectFormat: putUnavailableDataIntoCorrectFormat

@@ -27,6 +27,18 @@ app.get('/latest', function(req, res) {
     telemetryDb.getLatestData(callback);
 });
 
+app.get('/data/:id', function(req, res) {
+    var callback = function(err, data) {
+            if (err) {
+                res.status(400);
+                res.send(err);
+            } else {
+                res.send(data);
+            }
+        };
+    telemetryDb.getData(req.params.id, callback);
+});
+
 app.get('/historical', function(req, res) {
     var query = req.query;
     var dataTypes = [];

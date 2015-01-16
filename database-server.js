@@ -69,15 +69,25 @@ app.get('/historical', function(req, res) {
 });
 
 function saveTelemetryInfo(req, res) {
-    var callback = function(err, dbTelemetryInfo) {
-      if (err) {
+    var saveCallback = function(err, dbTelemetryInfo) {
+        if (err) {
           res.status(400);
           res.send(err);
-      } else {
+        } else {
           res.send(dbTelemetryInfo);
-      }
+        }
     };
-    telemetryDb.saveTelemetryInfo(req.body, callback);
+    telemetryDb.getData(req.body.sentence_id, function(err, existingData) {
+        if (err) {
+          res.status(400);
+          res.send(err);
+        } else if (existingData != null) {
+          res.status(400);
+          res.send("Data not saved as it already exists in database: " + existingData);
+        } else {
+            telemetryDb.saveTelemetryInfo(req.body, saveCallback);
+        }
+    });
 }
 
 app.put('/upload', function(req, res) {
